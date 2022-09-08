@@ -1,21 +1,19 @@
-// Если пользователь выбрал дату в прошлом, покажи window.alert() с текстом "Please choose a date in the future".
-// Если пользователь выбрал валидную дату (в будущем), кнопка «Start» становится активной.
-// Кнопка «Start» должа быть не активна до тех пор, пока пользователь не выбрал дату в будущем.
-// При нажатии на кнопку «Start» начинается отсчет времени до выбранной даты с момента нажатия.
-
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const buttonStart = document.querySelector('button[data-start]');
-const day = document.querySelector('button[data-days]');
-const hour = document.querySelector('button[data-hours]');
-const minute = document.querySelector('button[data-minutes]');
-const second = document.querySelector('button[data-seconds]');
+const timer = document.querySelector('.timer');
+const fields = document.querySelectorAll('.field');
+const day = document.querySelector('[data-days]');
+const hour = document.querySelector('[data-hours]');
+const minute = document.querySelector('[data-minutes]');
+const second = document.querySelector('[data-seconds]');
 
-buttonStart.addEventListener('click', convertMs);
+buttonStart.addEventListener('click', onClickStart);
 
 buttonStart.disabled = true;
 const SELECTED_DATE = 'selected date';
+let diffTime = 0;
 let intervalId = null;
 
 const options = {
@@ -37,30 +35,28 @@ const options = {
 
 flatpickr('#datetime-picker', options);
 
-buttonStart.addEventListener('click', onClickStart);
-
 function onClickStart() {
-  timer();
-}
-
-function timer() {
   intervalId = setInterval(differenceTime, 1000);
 }
 
-function pad(value) {
+function addLeadingZero(value) {
   return String(value).padStart(2, '0');
 }
 
 function differenceTime() {
   const savedTime = new Date(localStorage.getItem(SELECTED_DATE)).getTime();
-  const diffTime = savedTime - new Date().getTime();
-  if (diffTime === 0) {
+  diffTime = savedTime - new Date().getTime();
+  console.log(diffTime);
+  if (diffTime < 1) {
     clearInterval(intervalId);
     return;
   }
 
   const timeComponents = convertMs(diffTime);
-  console.log(timeComponents);
+  day.textContent = timeComponents.days;
+  hour.textContent = timeComponents.hours;
+  minute.textContent = timeComponents.minutes;
+  second.textContent = timeComponents.seconds;
 }
 
 function convertMs(ms) {
@@ -69,10 +65,25 @@ function convertMs(ms) {
   const hour = minute * 60;
   const day = hour * 24;
 
-  const days = pad(Math.floor(ms / day));
-  const hours = pad(Math.floor((ms % day) / hour));
-  const minutes = pad(Math.floor(((ms % day) % hour) / minute));
-  const seconds = pad(Math.floor((((ms % day) % hour) % minute) / second));
+  const days = addLeadingZero(Math.floor(ms / day));
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
+  const seconds = addLeadingZero(
+    Math.floor((((ms % day) % hour) % minute) / second)
+  );
 
   return { days, hours, minutes, seconds };
 }
+
+timer.style.display = 'flex';
+timer.style.marginTop = '60px';
+timer.style.justifyContent = ' center';
+timer.style.gap = '60px';
+
+fields.forEach(
+  field => (
+    (field.style.display = 'flex'),
+    (field.style.flexDirection = 'column'),
+    (field.style.alignItems = 'center')
+  )
+);
