@@ -4,10 +4,6 @@ import 'flatpickr/dist/flatpickr.min.css';
 const buttonStart = document.querySelector('button[data-start]');
 const timer = document.querySelector('.timer');
 const fields = document.querySelectorAll('.field');
-const day = document.querySelector('[data-days]');
-const hour = document.querySelector('[data-hours]');
-const minute = document.querySelector('[data-minutes]');
-const second = document.querySelector('[data-seconds]');
 
 buttonStart.addEventListener('click', onClickStart);
 
@@ -53,10 +49,11 @@ function differenceTime() {
   }
 
   const timeComponents = convertMs(diffTime);
-  day.textContent = timeComponents.days;
-  hour.textContent = timeComponents.hours;
-  minute.textContent = timeComponents.minutes;
-  second.textContent = timeComponents.seconds;
+
+  for (let key in timeComponents) {
+    const values = document.querySelector(`[data-${key}]`);
+    values.textContent = timeComponents[key];
+  }
 }
 
 function convertMs(ms) {
